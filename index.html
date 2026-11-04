@@ -733,5 +733,75 @@
         </div>
     </div>
 
-    <!-- Firebase App & Firestore SDKs -->
-    <script
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDummyKeyForHisabPortal",
+            authDomain: "hisab-exam-portal.firebaseapp.com",
+            projectId: "hisab-exam-portal",
+            storageBucket: "hisab-exam-portal.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.openAdminModal = function() {
+            document.getElementById('adminModal').style.display = 'flex';
+            document.getElementById('adminAuthScreen').style.display = 'block';
+            document.getElementById('adminDashboardScreen').style.display = 'none';
+            document.getElementById('adminPasswordInput').value = '';
+            document.getElementById('adminModalHeaderTitle').innerText = 'Admin Authentication';
+        };
+
+        window.closeAdminModal = function() {
+            document.getElementById('adminModal').style.display = 'none';
+        };
+
+        window.verifyAdminPassword = function() {
+            const pass = document.getElementById('adminPasswordInput').value;
+            if(pass === '9387') {
+                document.getElementById('adminAuthScreen').style.display = 'none';
+                document.getElementById('adminDashboardScreen').style.display = 'block';
+                document.getElementById('adminModalHeaderTitle').innerText = 'Admin Dashboard - IMAM BUKHARI DAWA DARS';
+                loadAdminData();
+            } else {
+                alert('Incorrect Password! Please try again.');
+            }
+        };
+
+        window.switchAdminTab = function(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            if(tabName === 'students') {
+                document.querySelector('[onclick*="students"]').classList.add('active');
+                document.getElementById('tabStudents').classList.add('active');
+            } else if(tabName === 'subjects') {
+                document.querySelector('[onclick*="subjects"]').classList.add('active');
+                document.getElementById('tabSubjects').classList.add('active');
+            } else if(tabName === 'batches') {
+                document.querySelector('[onclick*="batches"]').classList.add('active');
+                document.getElementById('tabBatches').classList.add('active');
+            } else if(tabName === 'marks') {
+                document.querySelector('[onclick*="marks"]').classList.add('active');
+                document.getElementById('tabMarks').classList.add('active');
+            }
+        };
+
+        async function loadAdminData() {
+            await loadBatchesAdmin();
+            await loadStudentsAdmin();
+            await loadSubjectsAdmin();
+            await loadMarkStudentsDropdown();
+        }
+
+        // Batches
+        window.addBatch = async function() {
+            const name = document.getElementById('newBatchName').value.trim();
+            if(!name) return alert('Enter batch name');
+            const id = 'batch_' + Date.now();
